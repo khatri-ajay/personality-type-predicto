@@ -4,13 +4,27 @@ A model that predicts one of four personality types (Moderate, Resilient, Overco
 
 ## Results
 
-Scores come from 5-fold cross-validation on the training data, plus one final check on a held-out test set (F1-macro).
+All models use `class_weight="balanced"` in the tuned versions, and are scored with F1-macro, which weights the four classes equally. This matters because the classes are imbalanced.
 
-FILL IN: paste your results table here (from the end of notebook 02 or 03), for example:
+**Untuned model comparison** (5-fold cross-validation on the full cleaned data):
 
-| Model | CV F1-macro | Test F1-macro |
+| Model | CV F1-macro | Std between folds |
 | --- | --- | --- |
-| Hist gradient boosting (tuned) | 0.00 | 0.00 |
+| Hist gradient boosting (balanced) | 0.8058 | 0.0065 |
+| Hist gradient boosting | 0.7986 | 0.0082 |
+| Random forest (balanced) | 0.7857 | 0.0070 |
+| Logistic regression (balanced) | 0.7838 | 0.0109 |
+| Logistic regression | 0.7664 | 0.0094 |
+| Random forest | 0.7424 | 0.0074 |
+| KNN | 0.7207 | 0.0084 |
+
+**Tuned models** (Hyperopt on the training split, then one final check on the held-out 20% test set):
+
+| Model | Test F1-macro | Test accuracy |
+| --- | --- | --- |
+| Hist gradient boosting | 0.8031 | 0.8365 |
+| Random forest | 0.7844 | 0.8189 |
+| Logistic regression | 0.7797 | 0.8235 |
 
 Undercontroller is the hardest type to predict. It depends on low Conscientiousness and low Agreeableness, and the dataset keeps only one question for each.
 
@@ -27,6 +41,8 @@ best_params.json               tuned settings written by notebook 02
 02_evaluate_and_tune.ipynb     cross-validation, model comparison, Hyperopt tuning
 03_mlflow_tracking.ipynb       log runs to MLflow and rank them
 app.py                         Streamlit app that loads the best model
+hello.py                       small Streamlit warm-up example
+pin_versions.py                prints library versions for requirements.txt
 ```
 
 ## Data
@@ -41,11 +57,11 @@ Two cleaning rules are applied in `utils.py`: drop the row where all 19 answers 
 
 ## Setup and run
 
-Tested with Python FILL IN (run `python --version`).
+Tested with Python 3.14.3.
 
 ```bash
-git clone FILL IN (your repo URL)
-cd personality-project
+git clone https://github.com/khatri-ajay/personality-type-predicto.git
+cd personality-type-predicto
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
@@ -54,7 +70,7 @@ pip install -r requirements.txt
 Open the project folder in VS Code or Jupyter and run each notebook from top to bottom, in this order:
 
 1. `01_eda_and_pipeline.ipynb` (about 1 minute)
-2. `02_evaluate_and_tune.ipynb` (about 6 minutes, writes `best_params.json`)
+2. `02_evaluate_and_tune.ipynb` (about 5 to 10 minutes, writes `best_params.json`)
 3. `03_mlflow_tracking.ipynb` (about 1 minute, logs the models)
 
 Then, from the project folder:
@@ -64,7 +80,7 @@ mlflow ui --backend-store-uri "sqlite:///$(pwd)/mlflow.db"   # optional: browse 
 streamlit run app.py                                         # the web app
 ```
 
-Run the MLflow UI and the app in two separate terminals.
+Run the MLflow UI and the app in two separate terminals. The app loads the run with the best cross-validated F1-macro from MLflow, so notebook 03 must be run first.
 
 ## Limitations
 
