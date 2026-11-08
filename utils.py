@@ -44,3 +44,32 @@ def build_preprocessor(X):
         ("cat", Pipeline([("impute", SimpleImputer(strategy="most_frequent")),
                           ("onehot", OneHotEncoder(handle_unknown="ignore"))]), CATEGORICAL),
     ])
+
+from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+
+MODEL_NAMES = ["Hist gradient boosting", "Random forest", "Logistic regression"]
+
+
+def build_classifier(name, p=None):
+    """Return a classifier by name. `p` holds tuned values; Hyperopt returns
+    whole numbers as floats, so integer settings are cast here."""
+    p = p or {}
+    if name == "Hist gradient boosting":
+        return HistGradientBoostingClassifier(
+            learning_rate=p.get("learning_rate", 0.1),
+            max_iter=int(p.get("max_iter", 100)),
+            max_depth=int(p["max_depth"]) if "max_depth" in p else None,
+            min_samples_leaf=int(p.get("min_samples_leaf", 20)),
+            l2_regularization=p.get("l2", 0.0),
+            class_weight="balanced", random_state=42)
+    if name == "Random forest":
+        return RandomForestClassifier(
+            n_estimators=int(p.get("n_estimators", 100)),
+            max_depth=int(p["max_depth"]) if "max_depth" in p else None,
+            min_samples_leaf=int(p.get("min_samples_leaf", 1)),
+            max_features=p.get("max_features", "sqrt"),
+            class_weight="balanced", random_state=42, n_jobs=-1)
+    if name == "Logistic regression":
+        return LogisticRegression(C=p.get("C", 1.0), class_weight="balanced", max_iter=2000)
+    raise ValueError(f"Unknown model: {name}")

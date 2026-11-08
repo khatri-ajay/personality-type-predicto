@@ -1,0 +1,18 @@
+{
+  "Hist gradient boosting": {
+    "l2": 0.4083937823224895,
+    "learning_rate": 0.10967089347528233,
+    "max_depth": 7.0,
+    "max_iter": 300.0,
+    "min_samples_leaf": 40.0
+  },
+  "Random forest": {
+    "max_depth": 14.0,
+    "max_features": 0.37241379191194035,
+    "min_samples_leaf": 3.0,
+    "n_estimators": 250.0
+  },
+  "Logistic regression": {
+    "C": 4.135157145296163
+  }
+}
